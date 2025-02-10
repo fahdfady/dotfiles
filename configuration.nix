@@ -65,6 +65,7 @@
     LC_TELEPHONE = "ar_EG.UTF-8";
     LC_TIME = "ar_EG.UTF-8";
   };
+  # i18n.inputMethod.enabled = "ibus";
 
   services.flatpak.enable = true;
 
@@ -76,11 +77,11 @@ services.xserver = {
 displayManager.gdm.enable = true;
 desktopManager.gnome.enable = true;
 
-  videoDrivers = [ "amdgpu" ];  # Ensure we're using the right driver
-screenSection = ''
-  Option "ModeValidation" "AllowNonEdidModes"
-  ModeLine "1440x900_60.00"  106.50  1440 1528 1672 1904  900 903 909 934 -hsync +vsync
-'';
+  #videoDrivers = [ "amdgpu" ];  # Ensure we're using the right driver
+# screenSection = ''
+  # Option "ModeValidation" "AllowNonEdidModes"
+  # ModeLine "1440x900_60.00"  106.50  1440 1528 1672 1904  900 903 909 934 -hsync # # +vsync
+# '';
 };
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -134,13 +135,6 @@ screenSection = ''
   loader.systemd-boot.enable =   true;
   loader.efi.canTouchEfiVariables = true;
 
-  # Memory management improvements
-    kernel.sysctl = {
-      "vm.swappiness" = 10;
-      "vm.dirty_ratio" = 60;
-      "vm.dirty_background_ratio" = 2;
-    };
-
   #   kernelParams = [
   #   amdgpu.dc=1           # Enable Display Core (modern power management)
   #   amdgpu.dpm=1          # Enable Dynamic Power Management
@@ -149,16 +143,8 @@ screenSection = ''
   
 };
 
-  # System-level performance and stability settings
-  security.pam.loginLimits = [{
-    domain = "*";
-    type = "soft";
-    item = "nofile";
-    value = "4096";
-  }];
-
   # Enable sound with pipewire.
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -232,6 +218,7 @@ screenSection = ''
     gh
   
   # compilers / languages
+    rustup
     rustc
     rustfmt       # Code formatter
     clippy        # Linter
@@ -250,10 +237,14 @@ screenSection = ''
 
     nodejs_22
     bun
+    wasm-pack
 
     openssl
     openssl.dev
-
+  
+    # LLVM tools including lld linker
+    llvmPackages.lld
+    
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
 
   # i hate dealing with this
