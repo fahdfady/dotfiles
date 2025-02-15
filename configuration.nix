@@ -66,23 +66,72 @@
     LC_TIME = "ar_EG.UTF-8";
   };
   # i18n.inputMethod.enabled = "ibus";
-
+  # xdg.portal.enable = true;
   services.flatpak.enable = true;
 
-  # Enable the X11 windowing system.
-  services.xserver.enable = true;
 
 services.xserver = {
-# Enable the GNOME Desktop Environment.
-displayManager.gdm.enable = true;
-desktopManager.gnome.enable = true;
+  # Enable the X11 windowing system.
+  enable = true;
 
-  #videoDrivers = [ "amdgpu" ];  # Ensure we're using the right driver
-# screenSection = ''
-  # Option "ModeValidation" "AllowNonEdidModes"
-  # ModeLine "1440x900_60.00"  106.50  1440 1528 1672 1904  900 903 909 934 -hsync # # +vsync
-# '';
+
+  # Enable AMDGPU driver and add custom modes
+  videoDrivers = [ "amdgpu" ];
+  
+  # Add custom monitor configuration
+  config = ''
+    Section "Monitor"
+      Identifier "VGA-1" # Replace with your monitor's identifier from xrandr
+      Option "ModeValidation" "AllowNonEdidModes"
+      Modeline "1366x768_60.00"   85.25  1366 1436 1579 1792  768 771 781 798 -hsync +vsync
+      Option "PreferredMode" "1366x768_60.00"
+    EndSection
+
+    Section "Device"
+      Identifier "AMD"
+      Driver "amdgpu"
+      Option "ModeDebug" "true"
+    EndSection
+  '';
+
+  monitorSection = ''
+  Option "CustomEDID" "VGA-1:/path/to/edid.bin"
+'';
+  # Apply xrandr commands at display start
+  displayManager = {
+    
+    gdm = {
+      enable = true;       # Explicitly enable GDM
+      wayland = false;     # Force Xorg session
+    };
+
+    setupCommands = ''
+        ${pkgs.xorg.xrandr}/bin/xrandr --newmode "1366x768_60.00" 85.25 1366 1436 1579 1792 768 771 781 798 -hsync +vsync
+        ${pkgs.xorg.xrandr}/bin/xrandr --addmode VGA-1 "1366x768_60.00"
+        ${pkgs.xorg.xrandr}/bin/xrandr --output VGA-1 --mode "1366x768_60.00"
+      '';
+
+  };
+
+  desktopManager.gnome.enable = true;
 };
+
+
+    xdg.portal = {
+    enable = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    };
+
+
+# Required for auto-login with any display manager
+services.displayManager = {
+  autoLogin = {
+    enable = true;
+    user = "fahd";
+  };
+  defaultSession = "gnome";  # Explicitly set GNOME session
+};
+
   # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
@@ -183,9 +232,10 @@ desktopManager.gnome.enable = true;
     }
   ];
 
-  # Enable automatic login for the user.
-  services.displayManager.autoLogin.enable = true;
-  services.displayManager.autoLogin.user = "fahd";
+  # # Enable automatic login for the user.
+  # services.displayManager.autoLogin.enable = true;
+  # services.displayManager.autoLogin.user = "fahd";
+  # services.displayManager.autoLogin.user = "fahd";
 
   # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
   systemd.services."getty@tty1".enable = false;
