@@ -13,3 +13,5 @@ vim.cmd([[
   highlight Folded guibg=none
   highlight EndOfBuffer guibg=none
 ]])
+
+vim.o.shell = "fish"
