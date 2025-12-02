@@ -1,37 +1,24 @@
-{ config, pkgs, ... }:
+{config, pkgs, ... }:
 
-let
-  rust-overlay = import (builtins.fetchTarball "https://github.com/oxalica/rust-overlay/archive/master.tar.gz");
-  myPkgs = import <nixpkgs> {
-    overlays = [ rust-overlay ];
-  };
-in
 {
-  home.username = "fahd";
+  imports = [
+    ./rust.nix
+  ] ;
+  home.username= "fahd";
   home.homeDirectory = "/home/fahd";
   home.stateVersion = "25.11";
 
-  home.packages = with myPkgs; [
+  home.packages = with pkgs; [
     nodejs_22
     python314
     bun
     gcc
     pkg-config
     openssl
+    less
 
-    # Rust toolchain with rust-src
-    (rust-bin.stable.latest.default.override {
-      extensions = [ "rust-src" "rustfmt" "clippy" ];
-    })
-
-    rust-analyzer
+    nixfmt
   ];
 
   programs.home-manager.enable = true;
-
-  # Tell rust-analyzer where stdlib sources are
-  home.sessionVariables = {
-    RUST_SRC_PATH = "${myPkgs.rustPlatform.rustLibSrc}";
-  };
 }
-
