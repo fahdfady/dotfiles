@@ -1,10 +1,7 @@
 return {
+  -- Disable mini.animate completely (LazyVim uses snacks.nvim now)
   {
-    "nvim-mini/mini.animate",
-    opts = function(_, opts)
-      opts.scroll = {
-        enable = false,
-      }
-    end,
+    "echasnovski/mini.animate",
+    enabled = false,
   },
 }

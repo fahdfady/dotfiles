@@ -5,6 +5,12 @@ return {
       picker = {
         hidden = true,
       },
+      scroll = {
+        enabled = false,
+      },
+      animate = {
+        enabled = false,
+      },
     },
   },
 }

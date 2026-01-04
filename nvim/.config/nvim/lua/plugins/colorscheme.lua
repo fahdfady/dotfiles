@@ -1,19 +1,21 @@
 return {
+  -- Set LazyVim colorscheme to kanagawa-dragon
+  {
+    "LazyVim/LazyVim",
+    opts = {
+      colorscheme = "kanagawa-dragon",
+    },
+  },
+
+  -- Configure kanagawa theme
   {
     "rebelot/kanagawa.nvim",
-    lazy = false, -- Load immediately
-    priority = 1000, -- Higher than others
-    config = function()
-      require("kanagawa").setup({
-        theme = "dragon",
-        compile = false,
-        terminalColors = false,
-        overrides = function(colors)
-          return {}
-        end,
-      })
-
-      vim.cmd.colorscheme("kanagawa-dragon")
-    end,
+    lazy = false,
+    priority = 1000,
+    opts = {
+      theme = "dragon",
+      compile = false,
+      terminalColors = true,
+    },
   },
 }
