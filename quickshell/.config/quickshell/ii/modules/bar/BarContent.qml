@@ -63,7 +63,7 @@ Item { // Bar content region
         onScrollUp: root.brightnessMonitor.setBrightness(root.brightnessMonitor.brightness + 0.05)
         onMovedAway: GlobalStates.osdBrightnessOpen = false
         onPressed: event => {
-            if (event.button === Qt.LeftButton)
+            if (event.button === Qt.LeftButton && leftSidebarButton.visible)
                 GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen;
         }
 
@@ -83,6 +83,8 @@ Item { // Bar content region
             spacing: 10
 
             LeftSidebarButton { // Left sidebar button
+                id: leftSidebarButton
+                visible: Config.options.policies.ai !== 0 || Config.options.sidebar.translator.enable || Config.options.policies.weeb !== 0
                 Layout.alignment: Qt.AlignVCenter
                 Layout.leftMargin: Appearance.rounding.screenRounding
                 colBackground: barLeftSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)

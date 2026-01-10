@@ -12,9 +12,10 @@ import Quickshell.Hyprland
 Scope {
     id: screenCorners
     readonly property Toplevel activeWindow: ToplevelManager.activeToplevel
+    readonly property bool hasLeftSidebarContent: Config.options.policies.ai !== 0 || Config.options.sidebar.translator.enable || Config.options.policies.weeb !== 0
     property var actionForCorner: ({
-        [RoundCorner.CornerEnum.TopLeft]: () => GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen,
-        [RoundCorner.CornerEnum.BottomLeft]: () => GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen,
+        [RoundCorner.CornerEnum.TopLeft]: () => { if (screenCorners.hasLeftSidebarContent) GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen },
+        [RoundCorner.CornerEnum.BottomLeft]: () => { if (screenCorners.hasLeftSidebarContent) GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen },
         [RoundCorner.CornerEnum.TopRight]: () => GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen,
         [RoundCorner.CornerEnum.BottomRight]: () => GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen
     })

@@ -87,7 +87,7 @@ Item {
             }
 
             contentChildren: [
-                ...((root.aiChatEnabled || (!root.translatorEnabled && !root.animeEnabled)) ? [aiChat.createObject()] : []),
+                ...(root.aiChatEnabled ? [aiChat.createObject()] : []),
                 ...(root.translatorEnabled ? [translator.createObject()] : []),
                 ...(root.animeEnabled ? [anime.createObject()] : [])
             ]

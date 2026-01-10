@@ -12,6 +12,7 @@ Scope { // Scope
     id: root
     property int sidebarPadding: 15
     property bool detach: false
+    property bool hasContent: Config.options.policies.ai !== 0 || Config.options.sidebar.translator.enable || Config.options.policies.weeb !== 0
     property Component contentComponent: SidebarLeftContent {}
     property Item sidebarContent
 
@@ -172,7 +173,7 @@ Scope { // Scope
         description: "Toggles left sidebar on press"
 
         onPressed: {
-            GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen;
+            if (root.hasContent) GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen;
         }
     }
 
@@ -181,7 +182,7 @@ Scope { // Scope
         description: "Opens left sidebar on press"
 
         onPressed: {
-            GlobalStates.sidebarLeftOpen = true;
+            if (root.hasContent) GlobalStates.sidebarLeftOpen = true;
         }
     }
 
@@ -190,7 +191,7 @@ Scope { // Scope
         description: "Closes left sidebar on press"
 
         onPressed: {
-            GlobalStates.sidebarLeftOpen = false;
+            if (root.hasContent) GlobalStates.sidebarLeftOpen = false;
         }
     }
 
@@ -199,7 +200,7 @@ Scope { // Scope
         description: "Detach left sidebar into a window/Attach it back"
 
         onPressed: {
-            root.detach = !root.detach;
+            if (root.hasContent) root.detach = !root.detach;
         }
     }
 
