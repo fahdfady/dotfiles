@@ -92,6 +92,7 @@ Item { // Bar content region
 
             ActiveWindow {
                 visible: root.useShortenedForm === 0
+                Layout.leftMargin: leftSidebarButton.visible ? 0 : Appearance.rounding.screenRounding
                 Layout.rightMargin: Appearance.rounding.screenRounding
                 Layout.fillWidth: true
                 Layout.fillHeight: true
