@@ -6,6 +6,7 @@ pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import qs.modules.common
 import "./network"
 
 /**
@@ -75,6 +76,38 @@ Singleton {
 
     function openPublicWifiPortal() {
         Quickshell.execDetached(["xdg-open", "https://nmcheck.gnome.org/"]) // From some StackExchange thread, seems to work
+    }
+
+    function openNetworkSettings(): void {
+        const configuredEthernet = (Config.options.apps.networkEthernet || "").trim();
+        const configuredNetwork = (Config.options.apps.network || "").trim();
+        Quickshell.execDetached({
+            environment: ({
+                QS_NETWORK_ETHERNET_CMD: configuredEthernet,
+                QS_NETWORK_CMD: configuredNetwork
+            }),
+            command: ["bash", "-c", `
+has_kcm_networkmanagement() {
+    [ -f /usr/lib/qt6/plugins/plasma/kcms/kcm_networkmanagement.so ] || [ -f /usr/lib/qt/plugins/plasma/kcms/kcm_networkmanagement.so ]
+}
+
+run_cmd_if_valid() {
+    local cmd="$1"
+    [ -n "$cmd" ] || return 1
+    if [[ "$cmd" == *kcm_networkmanagement* ]]; then
+        command -v kcmshell6 >/dev/null 2>&1 || return 1
+        has_kcm_networkmanagement || return 1
+    fi
+    bash -lc "$cmd"
+}
+
+run_cmd_if_valid "$QS_NETWORK_ETHERNET_CMD" && exit 0
+command -v nm-connection-editor >/dev/null 2>&1 && exec nm-connection-editor
+run_cmd_if_valid "$QS_NETWORK_CMD" && exit 0
+command -v kcmshell6 >/dev/null 2>&1 && has_kcm_networkmanagement && exec kcmshell6 kcm_networkmanagement
+command -v nmtui >/dev/null 2>&1 && command -v kitty >/dev/null 2>&1 && exec kitty -1 sh -lc nmtui
+`]
+        })
     }
 
     function changePassword(network: WifiAccessPoint, password: string, username = ""): void {
