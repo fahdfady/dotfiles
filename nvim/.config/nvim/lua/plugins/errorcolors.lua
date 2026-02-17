@@ -7,10 +7,10 @@ return {
       vim.api.nvim_set_hl(0, group, opts)
     end
 
-    -- Colors suited to Kanagawa Dragon theme
+    -- Softer colors suited to Kanagawa Dragon theme (less triggering)
     local palette = {
-      error = "#ffffff", -- DragonRed
-      warn = "#c37d0d", -- DragonYellow
+      error = "#744642", -- Muted rose (DragonRed but softer)
+      warn = "#c4b28a", -- Soft amber (DragonYellow muted)
       info = "#7e9cd8", -- DragonBlue
       hint = "#6a9589", -- DragonAqua
     }
