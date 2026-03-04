@@ -14,4 +14,9 @@ vim.cmd([[
   highlight EndOfBuffer guibg=none
 ]])
 
+vim.filetype.add({
+  extension = {
+    njk = "html",
+  },
+})
 vim.o.shell = "fish"
