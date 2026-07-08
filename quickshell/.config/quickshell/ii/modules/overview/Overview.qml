@@ -221,6 +221,8 @@ Scope {
 
         onPressed: {
             GlobalStates.superReleaseMightTrigger = false;
+            if (GlobalStates.overviewOpen)
+                GlobalStates.overviewOpen = false;
         }
     }
     GlobalShortcut {
