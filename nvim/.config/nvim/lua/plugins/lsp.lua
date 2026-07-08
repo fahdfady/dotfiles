@@ -1,13 +1,5 @@
 return {
-  {
-    "neovim/nvim-lspconfig",
-    opts = {
-      servers = {
-        gopls = {},
-        biome = {},
-      },
-    },
-  },
+
   {
     "mrcjkb/rustaceanvim",
     optional = true,
@@ -17,9 +9,24 @@ return {
           ["rust-analyzer"] = {
             cargo = {
               allFeatures = true,
-              target = "x86_64-pc-windows-gnu",
+            },
+            check = {
+              allTargets = true,
+              targets = {
+                "x86_64-unknown-linux-gnu",
+                "x86_64-pc-windows-gnu",
+              },
             },
           },
+        },
+      },
+    },
+    {
+      "neovim/nvim-lspconfig",
+      opts = {
+        servers = {
+          gopls = {},
+          biome = {},
         },
       },
     },

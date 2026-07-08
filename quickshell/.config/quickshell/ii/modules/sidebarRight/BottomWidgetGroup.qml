@@ -4,6 +4,7 @@ import qs.services
 import "./calendar"
 import "./todo"
 import "./pomodoro"
+import "./prayer"
 import QtQuick
 import QtQuick.Layouts
 
@@ -19,6 +20,7 @@ Rectangle {
         {"type": "calendar", "name": Translation.tr("Calendar"), "icon": "calendar_month", "widget": calendarWidget}, 
         {"type": "todo", "name": Translation.tr("To Do"), "icon": "done_outline", "widget": todoWidget},
         {"type": "timer", "name": Translation.tr("Timer"), "icon": "schedule", "widget": pomodoroWidget},
+        {"type": "prayer", "name": Translation.tr("Prayer"), "icon": "mosque", "widget": prayerWidget},
     ]
 
     Behavior on implicitHeight {
@@ -244,6 +246,15 @@ Rectangle {
     Component {
         id: pomodoroWidget
         PomodoroWidget {
+            anchors.fill: parent
+            anchors.margins: 5
+        }
+    }
+
+    // Prayer component
+    Component {
+        id: prayerWidget
+        PrayerWidget {
             anchors.fill: parent
             anchors.margins: 5
         }

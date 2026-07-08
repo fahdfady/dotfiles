@@ -175,6 +175,8 @@ Scope {
         }
         function toggleReleaseInterrupt() {
             GlobalStates.superReleaseMightTrigger = false;
+            if (GlobalStates.overviewOpen)
+                GlobalStates.overviewOpen = false;
         }
         function clipboardToggle() {
             overviewScope.toggleClipboard();

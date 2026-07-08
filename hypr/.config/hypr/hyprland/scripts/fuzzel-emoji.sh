@@ -190,8 +190,8 @@ exit
 🖕 middle finger hand fingers rude middle flipping
 👇 backhand index pointing down fingers hand direction down
 ☝️ index pointing up hand fingers direction up
-👍 thumbs up thumbsup yes awesome good agree accept cool hand like +1
-👎 thumbs down thumbsdown no dislike hand -1
+👍 like thumbs up yes awesome good agree accept cool hand like +1
+👎 dislike thumbs down no hand -1
 ✊ raised fist fingers hand grasp
 👊 oncoming fist angry violence fist hit attack hand
 🤛 left facing fist hand fistbump

@@ -392,6 +392,16 @@ Singleton {
                     property real cornerRegionHeight: 2
                     property bool visualize: false
                 }
+                property JsonObject prayer: JsonObject {
+                    property bool useWeatherLocation: true
+                    property bool useManualCoordinates: false
+                    property real latitude: 0
+                    property real longitude: 0
+                    property string locationName: ""
+                    property int fajrAngle: 18
+                    property int ishaAngle: 17
+                    property real asrFactor: 1
+                }
             }
 
             property JsonObject time: JsonObject {
