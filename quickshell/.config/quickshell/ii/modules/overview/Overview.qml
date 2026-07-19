@@ -173,8 +173,17 @@ Scope {
         function open() {
             GlobalStates.overviewOpen = true;
         }
+        function toggleRelease() {
+            if (!GlobalStates.superReleaseMightTrigger) {
+                GlobalStates.superReleaseMightTrigger = true;
+                return;
+            }
+            GlobalStates.overviewOpen = !GlobalStates.overviewOpen;
+        }
         function toggleReleaseInterrupt() {
             GlobalStates.superReleaseMightTrigger = false;
+            if (GlobalStates.overviewOpen)
+                GlobalStates.overviewOpen = false;
         }
         function clipboardToggle() {
             overviewScope.toggleClipboard();
