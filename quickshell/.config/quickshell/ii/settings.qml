@@ -64,7 +64,7 @@ ApplicationWindow {
 
     visible: true
     onClosing: Qt.quit()
-    title: "illogical-impulse Settings"
+    title: "fahd Settings"
 
     Component.onCompleted: {
         MaterialThemeLoader.reapplyTheme()
@@ -173,11 +173,11 @@ ApplicationWindow {
                         buttonText: Translation.tr("Config file")
                         expanded: navRail.expanded
                         downAction: () => {
-                            Qt.openUrlExternally(`${Directories.config}/illogical-impulse/config.json`);
+                            Qt.openUrlExternally(`${Directories.config}/fahd/config.json`);
                         }
 
                         StyledToolTip {
-                            text: Translation.tr("Open the shell config file.\nIf the button doesn't work or doesn't open in your favorite editor,\nyou can manually open ~/.config/illogical-impulse/config.json")
+                            text: Translation.tr("Open the shell config file.\nIf the button doesn't work or doesn't open in your favorite editor,\nyou can manually open ~/.config/fahd/config.json")
                         }
                     }
 

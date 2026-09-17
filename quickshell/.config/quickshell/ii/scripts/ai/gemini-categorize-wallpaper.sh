@@ -17,7 +17,7 @@ RESIZED_IMG_PATH="/tmp/quickshell/ai/wallpaper.jpg"
 magick "$SOURCE_IMG_PATH" -resize 200x -quality 50 "$RESIZED_IMG_PATH"
 
 # Get API key
-API_KEY=$(secret-tool lookup 'application' 'illogical-impulse' | jq -r '.apiKeys.gemini')
+API_KEY=$(secret-tool lookup 'application' 'fahd' | jq -r '.apiKeys.gemini')
 
 # Encode image to base64
 if [[ "$(base64 --version 2>&1)" = *"FreeBSD"* ]]; then

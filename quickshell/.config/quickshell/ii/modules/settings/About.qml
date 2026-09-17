@@ -89,17 +89,17 @@ ContentPage {
             Layout.bottomMargin: 10
             IconImage {
                 implicitSize: 80
-                source: Quickshell.iconPath("illogical-impulse")
+                source: Quickshell.iconPath("fahd")
             }
             ColumnLayout {
                 Layout.alignment: Qt.AlignVCenter
                 // spacing: 10
                 StyledText {
-                    text: Translation.tr("illogical-impulse")
+                    text: Translation.tr("fahd")
                     font.pixelSize: Appearance.font.pixelSize.title
                 }
                 StyledText {
-                    text: "https://github.com/end-4/dots-hyprland"
+                    text: "https://github.com/fahdfady/dotfiles"
                     font.pixelSize: Appearance.font.pixelSize.normal
                     textFormat: Text.MarkdownText
                     onLinkActivated: (link) => {
@@ -118,7 +118,7 @@ ContentPage {
                 materialIcon: "auto_stories"
                 mainText: Translation.tr("Documentation")
                 onClicked: {
-                    Qt.openUrlExternally("https://end-4.github.io/dots-hyprland-wiki/en/ii-qs/02usage/")
+                    Qt.openUrlExternally("https://github.com/fahdfady/dotfiles")
                 }
             }
             RippleButtonWithIcon {
@@ -126,21 +126,21 @@ ContentPage {
                 materialIconFill: false
                 mainText: Translation.tr("Issues")
                 onClicked: {
-                    Qt.openUrlExternally("https://github.com/end-4/dots-hyprland/issues")
+                    Qt.openUrlExternally("https://github.com/fahdfady/dotfiles/issues")
                 }
             }
             RippleButtonWithIcon {
                 materialIcon: "forum"
                 mainText: Translation.tr("Discussions")
                 onClicked: {
-                    Qt.openUrlExternally("https://github.com/end-4/dots-hyprland/discussions")
+                    Qt.openUrlExternally("https://github.com/fahdfady/dotfiles/discussions")
                 }
             }
             RippleButtonWithIcon {
                 materialIcon: "favorite"
                 mainText: Translation.tr("Donate")
                 onClicked: {
-                    Qt.openUrlExternally("https://github.com/sponsors/end-4")
+                    Qt.openUrlExternally("https://github.com/fahdfady/dotfiles")
                 }
             }
 
