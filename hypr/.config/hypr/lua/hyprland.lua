@@ -8,6 +8,9 @@ require("general")
 require("custom.general")
 require("env")
 require("animations")
+require("monitors")
+require("gestures")
+require("workspaces")
 
 -- Input block that lived inline in hyprland.conf (applied after modules)
 hl.config({
@@ -16,11 +19,4 @@ hl.config({
         kb_variant = "",
         kb_options = "grp:win_space_toggle",
     },
-})
-
-hl.monitor({
-    output   = "",
-    mode     = "preferred",
-    position = "auto",
-    scale    = "auto",
 })

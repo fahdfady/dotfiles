@@ -1,0 +1,2 @@
+-- Workspace rules (was workspaces.conf) -- Stage 3
+-- (workspaces.conf contains no active rules, only the nwg-displays header comment)
