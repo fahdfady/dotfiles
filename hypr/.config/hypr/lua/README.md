@@ -1,9 +1,9 @@
-# Hyprland Lua config — staging area
+# Hyprland Lua config — cutover-ready (stage 9)
 
-This directory holds the in-progress Lua migration of the Hyprland config.
-It is **not** used by the live session until the cutover (Stage 9): the
-live session keeps using `hyprland.conf` because `~/.config/hypr/hyprland.lua`
-does not exist yet.
+This directory holds the Lua migration of the Hyprland config. The
+production entry `~/.config/hypr/hyprland.lua` (symlinked into this tree)
+loads these modules; Hyprland prefers it over `hyprland.conf` on the next
+start.
 
 ## Test harness
 
