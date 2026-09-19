@@ -12,6 +12,7 @@ if status is-interactive # Commands to run in interactive sessions can go here
     set fish_greeting
 
     set -gx PATH $HOME/.opencode/bin $PATH
+    set -gx PATH $HOME/.cargo/bin $PATH
 
     # Use starship
     starship init fish | source
