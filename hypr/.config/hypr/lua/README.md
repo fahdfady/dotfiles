@@ -34,3 +34,22 @@ verify-config execution above, and the behavioral gate is the restart.
 - To enable hyprbars later: `sudo pacman -S hyprpm`, `hyprpm add
   https://github.com/hyprwm/hyprland-plugins`, `hyprpm enable hyprbars`,
   then add the Lua block back to the matugen template.
+
+## Activate (restart) & rollback
+
+The cutover is staged: `~/.config/hypr/hyprland.lua` and
+`~/.config/hypr/lua` are symlinks into this repo. The running session still
+uses the previously-loaded `.conf` until Hyprland restarts.
+
+- **Activate**: log out and back in (or `hyprctl dispatch exit`, then log in
+  on tty1). Hyprland will load `hyprland.lua`.
+- **Check**: `hyprctl configerrors` should be empty; verify cheatsheet
+  (`Super+/`), overview/submap keybinds, gestures, wallpaper colors, lock/idle.
+- **Rollback** (if anything is wrong): remove the two symlinks and restart:
+  ```
+  rm ~/.config/hypr/hyprland.lua ~/.config/hypr/lua
+  ```
+  The legacy `.conf` files are still on disk and remain supported on 0.56.x.
+  `Hyprland --safe-mode` (recoverycfg.lua) is also available.
+- Once the Lua session is confirmed working, the legacy `.conf` files are
+  deleted (stage 10).
