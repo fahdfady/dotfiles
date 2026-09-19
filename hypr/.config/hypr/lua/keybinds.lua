@@ -108,16 +108,16 @@ hl.define_submap("global", function()
     hl.bind("SUPER + ALT + F", hl.dsp.window.fullscreen_state({ internal = 0, client = 3 }))
     hl.bind("SUPER + P", hl.dsp.window.pin({ action = "toggle" }))
 
-    hl.bind("SUPER + ALT + 1", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh movetoworkspacesilent 1")) -- hidden
-    hl.bind("SUPER + ALT + 2", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh movetoworkspacesilent 2")) -- hidden
-    hl.bind("SUPER + ALT + 3", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh movetoworkspacesilent 3")) -- hidden
-    hl.bind("SUPER + ALT + 4", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh movetoworkspacesilent 4")) -- hidden
-    hl.bind("SUPER + ALT + 5", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh movetoworkspacesilent 5")) -- hidden
-    hl.bind("SUPER + ALT + 6", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh movetoworkspacesilent 6")) -- hidden
-    hl.bind("SUPER + ALT + 7", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh movetoworkspacesilent 7")) -- hidden
-    hl.bind("SUPER + ALT + 8", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh movetoworkspacesilent 8")) -- hidden
-    hl.bind("SUPER + ALT + 9", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh movetoworkspacesilent 9")) -- hidden
-    hl.bind("SUPER + ALT + 0", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh movetoworkspacesilent 10")) -- hidden
+    hl.bind("SUPER + ALT + 1", hl.dsp.window.move({ workspace = "1", follow = false })) -- hidden
+    hl.bind("SUPER + ALT + 2", hl.dsp.window.move({ workspace = "2", follow = false })) -- hidden
+    hl.bind("SUPER + ALT + 3", hl.dsp.window.move({ workspace = "3", follow = false })) -- hidden
+    hl.bind("SUPER + ALT + 4", hl.dsp.window.move({ workspace = "4", follow = false })) -- hidden
+    hl.bind("SUPER + ALT + 5", hl.dsp.window.move({ workspace = "5", follow = false })) -- hidden
+    hl.bind("SUPER + ALT + 6", hl.dsp.window.move({ workspace = "6", follow = false })) -- hidden
+    hl.bind("SUPER + ALT + 7", hl.dsp.window.move({ workspace = "7", follow = false })) -- hidden
+    hl.bind("SUPER + ALT + 8", hl.dsp.window.move({ workspace = "8", follow = false })) -- hidden
+    hl.bind("SUPER + ALT + 9", hl.dsp.window.move({ workspace = "9", follow = false })) -- hidden
+    hl.bind("SUPER + ALT + 0", hl.dsp.window.move({ workspace = "10", follow = false })) -- hidden
 
     hl.bind("SUPER + SHIFT + mouse_down", hl.dsp.window.move({ workspace = "r-1" }), { mouse = true }) -- hidden
     hl.bind("SUPER + SHIFT + mouse_up", hl.dsp.window.move({ workspace = "r+1" }), { mouse = true }) -- hidden
@@ -141,16 +141,16 @@ hl.define_submap("global", function()
 -- ##! Workspace
     -- Workspace
     ---------------------------------
-    hl.bind("SUPER + 1", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh workspace 1")) -- hidden
-    hl.bind("SUPER + 2", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh workspace 2")) -- hidden
-    hl.bind("SUPER + 3", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh workspace 3")) -- hidden
-    hl.bind("SUPER + 4", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh workspace 4")) -- hidden
-    hl.bind("SUPER + 5", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh workspace 5")) -- hidden
-    hl.bind("SUPER + 6", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh workspace 6")) -- hidden
-    hl.bind("SUPER + 7", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh workspace 7")) -- hidden
-    hl.bind("SUPER + 8", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh workspace 8")) -- hidden
-    hl.bind("SUPER + 9", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh workspace 9")) -- hidden
-    hl.bind("SUPER + 0", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/workspace_action.sh workspace 10")) -- hidden
+    hl.bind("SUPER + 1", hl.dsp.focus({ workspace = "1" })) -- hidden
+    hl.bind("SUPER + 2", hl.dsp.focus({ workspace = "2" })) -- hidden
+    hl.bind("SUPER + 3", hl.dsp.focus({ workspace = "3" })) -- hidden
+    hl.bind("SUPER + 4", hl.dsp.focus({ workspace = "4" })) -- hidden
+    hl.bind("SUPER + 5", hl.dsp.focus({ workspace = "5" })) -- hidden
+    hl.bind("SUPER + 6", hl.dsp.focus({ workspace = "6" })) -- hidden
+    hl.bind("SUPER + 7", hl.dsp.focus({ workspace = "7" })) -- hidden
+    hl.bind("SUPER + 8", hl.dsp.focus({ workspace = "8" })) -- hidden
+    hl.bind("SUPER + 9", hl.dsp.focus({ workspace = "9" })) -- hidden
+    hl.bind("SUPER + 0", hl.dsp.focus({ workspace = "10" })) -- hidden
 
     hl.bind("CTRL + SUPER + RIGHT", hl.dsp.focus({ workspace = "r+1" })) -- hidden
     hl.bind("CTRL + SUPER + LEFT", hl.dsp.focus({ workspace = "r-1" })) -- hidden
