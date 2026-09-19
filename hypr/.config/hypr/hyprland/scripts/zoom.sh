@@ -22,7 +22,11 @@ clamp() {
 set_zoom() {
     local value="$1"
     clamped=$(clamp "$value")
-    hyprctl keyword cursor:zoom_factor "$clamped"
+    # Prefer the Lua config manager (0.56+); fall back to keyword on legacy .conf.
+    out=$(hyprctl eval "hl.config({ cursor = { zoom_factor = $clamped } })" 2>&1)
+    if echo "$out" | grep -q "lua config manager"; then
+        hyprctl keyword cursor:zoom_factor "$clamped" >/dev/null 2>&1
+    fi
 }
 
 case "$1" in
