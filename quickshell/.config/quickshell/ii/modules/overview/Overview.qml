@@ -102,10 +102,10 @@ Scope {
                         GlobalStates.overviewOpen = false;
                     } else if (event.key === Qt.Key_Left) {
                         if (!root.searchingText)
-                            Hyprland.dispatch("workspace r-1");
+                            Hyprland.dispatch(`hl.dsp.focus({ workspace = "r-1" })`);
                     } else if (event.key === Qt.Key_Right) {
                         if (!root.searchingText)
-                            Hyprland.dispatch("workspace r+1");
+                            Hyprland.dispatch(`hl.dsp.focus({ workspace = "r+1" })`);
                     }
                 }
 
@@ -182,8 +182,6 @@ Scope {
         }
         function toggleReleaseInterrupt() {
             GlobalStates.superReleaseMightTrigger = false;
-            if (GlobalStates.overviewOpen)
-                GlobalStates.overviewOpen = false;
         }
         function clipboardToggle() {
             overviewScope.toggleClipboard();
@@ -228,8 +226,6 @@ Scope {
 
         onPressed: {
             GlobalStates.superReleaseMightTrigger = false;
-            if (GlobalStates.overviewOpen)
-                GlobalStates.overviewOpen = false;
         }
     }
     GlobalShortcut {
