@@ -28,6 +28,10 @@ Item {
                 root.showBluetoothDialog = false;
             }
         }
+        function onWifiDialogRequestChanged() {
+            if (GlobalStates.wifiDialogRequest > 0)
+                root.showWifiDialog = true;
+        }
     }
 
     implicitHeight: sidebarRightBackground.implicitHeight

@@ -13,6 +13,10 @@ Singleton {
     property bool crosshairOpen: false
     property bool sidebarLeftOpen: false
     property bool sidebarRightOpen: false
+    // Increment to summon the wifi dialog (e.g. from the bar indicators).
+    // SidebarRightContent observes this and opens the dialog; using a
+    // counter (not a bool) so repeated clicks re-summon while open.
+    property int wifiDialogRequest: 0
     property bool mediaControlsOpen: false
     property bool osdBrightnessOpen: false
     property bool osdVolumeOpen: false

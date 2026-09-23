@@ -258,7 +258,23 @@ Item { // Bar content region
                 }
 
                 onPressed: {
-                    GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
+                    // Never toggles closed from here: an open sidebar showing
+                    // something else jumps to wifi instead of disappearing.
+                    if (!GlobalStates.sidebarRightOpen)
+                        GlobalStates.sidebarRightOpen = true;
+                    GlobalStates.wifiDialogRequest++;
+                }
+
+                StyledToolTip {
+                    text: {
+                        if (Network.ethernet)
+                            return Network.networkName.length > 0 ? "Ethernet — " + Network.networkName : "Ethernet";
+                        if (!Network.wifiEnabled)
+                            return Translation.tr("Wi-Fi off");
+                        if (Network.networkName.length > 0)
+                            return Network.networkName + " (" + Network.networkStrength + "%)";
+                        return Translation.tr(Network.wifiStatus);
+                    }
                 }
 
                 RowLayout {
