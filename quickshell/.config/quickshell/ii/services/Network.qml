@@ -8,6 +8,7 @@ import Quickshell.Io
 import QtQuick
 import qs.modules.common
 import "./network"
+import "network/omarchy/NetworkModel.js" as NetModel
 
 /**
  * Network service with nmcli.
@@ -345,6 +346,213 @@ command -v nmtui >/dev/null 2>&1 && command -v kitty >/dev/null 2>&1 && exec kit
                         }));
                     }
                 }
+            }
+        }
+    }
+
+    // ===== Omarchy wifi port: link details / stats / band / DNS =====
+    // UI sets detailsActive while the wifi dialog is open. Every poller
+    // below only runs then, so an idle bar costs nothing extra.
+    property bool detailsActive: false
+
+    readonly property string omarchyBin: Quickshell.shellPath("services/network/omarchy/bin")
+
+    // Parsed `qs-network-status --verbose` rows: iface, ip, prefix, gateway,
+    // type (wifi/ethernet), ssid, signal_dbm, freq, bitrate, speed, duplex,
+    // rx_bytes, tx_bytes, router_ping_ms, internet_ping_ms.
+    property var linkInfo: ({})
+    property real downloadRate: 0
+    property real uploadRate: 0
+    property real routerPingLatency: -1
+    property real internetPingLatency: -1
+    property int internetPingPacketLoss: 0
+    property var _tpState: ({})
+    property var _pingState: ({})
+
+    property string dnsProvider: ""
+    property string _pendingDnsProvider: ""
+    property string bandCurrent: ""
+    property string bandSelected: "auto"
+    property var bandAvailable: []
+    property string _pendingBand: ""
+    readonly property bool bandBusy: _pendingBand !== ""
+    readonly property string bandEffective: _pendingBand !== "" ? _pendingBand : bandSelected
+    readonly property bool bandPinned: bandEffective !== "auto"
+    // Wi-Fi only: on ethernet the band of a secondary radio is not what the
+    // dialog describes. bandBusy keeps the section mounted across the
+    // reconnect a band change causes.
+    readonly property bool canSelectBand: ((linkInfo.type || "") === "wifi" || bandBusy)
+        && (bandAvailable.length > 1 || bandPinned)
+    readonly property string bandSectionTitle: NetModel.bandSectionTitle(bandEffective, bandCurrent)
+    readonly property bool hasTransferStats: linkInfo.rx_bytes !== undefined
+    readonly property bool hasPingSamples: !!(_pingState.internetPingSamples && _pingState.internetPingSamples.length > 0)
+    // The hero switch is the Wi-Fi radio, so it only exists when there is a
+    // radio to switch. On a wired box it would otherwise sit there reading
+    // "off" beside a perfectly live ethernet connection.
+    readonly property bool canToggleWifi: wifiEnabled || (wifiStatus !== "disabled")
+
+    function headerDetail() {
+        return NetModel.headerDetail({ type: linkInfo.type || "", speed: linkInfo.speed || "" });
+    }
+
+    function formatRate(bytesPerSec) {
+        return NetModel.formatRate(bytesPerSec);
+    }
+
+    function formatBytes(bytes) {
+        return NetModel.formatBytes(bytes);
+    }
+
+    function pingText() {
+        return NetModel.formatPingLatency(internetPingLatency, hasPingSamples);
+    }
+
+    function packetLossText() {
+        return NetModel.formatPacketLoss(internetPingPacketLoss, hasPingSamples);
+    }
+
+    function refreshDetails() {
+        if (!detailsProc.running)
+            detailsProc.running = true;
+    }
+
+    function _ingestVerbose(text) {
+        const info = NetModel.parseKeyValue(text);
+        const now = Date.now() / 1000;
+        const tp = NetModel.throughputState(_tpState, info, now);
+        _tpState = tp;
+        downloadRate = tp.downloadRate;
+        uploadRate = tp.uploadRate;
+        const ps = NetModel.pingLatencyState(_pingState, info, 24, 5);
+        _pingState = ps;
+        routerPingLatency = ps.routerPingLatency;
+        internetPingLatency = ps.internetPingLatency;
+        internetPingPacketLoss = ps.internetPingPacketLoss;
+        linkInfo = info;
+    }
+
+    function _ingestBand(text) {
+        const status = NetModel.parseBandStatus(text);
+        // Mid-reconnect there is no connected station, so the command reports
+        // nothing. Publishing that would empty the option list on every toggle.
+        if (bandBusy && status.available.length === 0)
+            return;
+        bandCurrent = status.band;
+        bandSelected = status.selected;
+        bandAvailable = status.available;
+    }
+
+    function setBand(band) {
+        if (!band || bandSetProc.running)
+            return;
+        _pendingBand = band;
+        bandSetProc.exec([omarchyBin + "/qs-network-band", band]);
+    }
+
+    function setDnsProvider(provider) {
+        if (!provider || dnsSetProc.running)
+            return;
+        if (provider === "Custom") {
+            runCustomDnsInTerminal();
+            return;
+        }
+        _pendingDnsProvider = provider;
+        dnsSetProc.exec([omarchyBin + "/qs-dns", provider]);
+    }
+
+    property string customDnsTerminal: "kitty"
+
+    function runCustomDnsInTerminal() {
+        Quickshell.execDetached([customDnsTerminal, "-1", "sh", "-lc", omarchyBin + "/qs-dns Custom"]);
+    }
+
+    onDetailsActiveChanged: {
+        if (detailsActive) {
+            refreshDetails();
+            if (!bandProc.running)
+                bandProc.running = true;
+            if (!dnsProc.running)
+                dnsProc.running = true;
+        }
+    }
+
+    Process {
+        id: detailsProc
+        command: [root.omarchyBin + "/qs-network-status", "--verbose"]
+        stdout: StdioCollector {
+            onStreamFinished: root._ingestVerbose(text)
+        }
+    }
+
+    Timer {
+        id: detailsPoll
+        interval: 1500
+        repeat: true
+        triggeredOnStart: true
+        running: root.detailsActive
+        onTriggered: root.refreshDetails()
+    }
+
+    Process {
+        id: bandProc
+        command: [root.omarchyBin + "/qs-network-band"]
+        stdout: StdioCollector {
+            onStreamFinished: root._ingestBand(text)
+        }
+    }
+
+    // Slower than detailsPoll on purpose: this shells out to nmcli several
+    // times, and band availability only moves when a scan turns up a BSSID.
+    Timer {
+        id: bandPoll
+        interval: 4000
+        repeat: true
+        running: root.detailsActive
+        onTriggered: {
+            if (!bandProc.running)
+                bandProc.running = true;
+        }
+    }
+
+    Process {
+        id: dnsProc
+        command: [root.omarchyBin + "/qs-dns"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.dnsProvider = text.trim() || "DHCP";
+            }
+        }
+    }
+
+    // Action runner for DNS provider changes. Wi-Fi actions use
+    // NetworkManager's nmcli backend directly (see Slice 3).
+    Process {
+        id: dnsSetProc
+        stdout: SplitParser {}
+        stderr: SplitParser {}
+        onExited: (exitCode, exitStatus) => {
+            if (root._pendingDnsProvider !== "") {
+                if (exitCode === 0)
+                    root.dnsProvider = root._pendingDnsProvider;
+                root._pendingDnsProvider = "";
+            }
+        }
+    }
+
+    // Band changes reassociate; refresh state after the reconnect instead of
+    // leaving stale readings until the next poll tick.
+    Process {
+        id: bandSetProc
+        stdout: SplitParser {}
+        stderr: SplitParser {}
+        onExited: (exitCode, exitStatus) => {
+            if (root._pendingBand !== "") {
+                if (exitCode === 0)
+                    root.bandSelected = root._pendingBand;
+                root._pendingBand = "";
+                root.refreshDetails();
+                if (!bandProc.running)
+                    bandProc.running = true;
             }
         }
     }
