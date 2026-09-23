@@ -134,7 +134,7 @@ Scope {
         target: Config
         function onReadyChanged() {
             if (Config.options.lock.launchOnStartup && Config.ready && Persistent.ready && Persistent.isNewHyprlandInstance) {
-                Hyprland.dispatch("global quickshell:lock")
+                Hyprland.dispatch('hl.dsp.global("quickshell:lock")')
             }
         }
     }
@@ -142,7 +142,7 @@ Scope {
         target: Persistent
         function onReadyChanged() {
             if (Config.options.lock.launchOnStartup && Config.ready && Persistent.ready && Persistent.isNewHyprlandInstance) {
-                Hyprland.dispatch("global quickshell:lock")
+                Hyprland.dispatch('hl.dsp.global("quickshell:lock")')
             }
         }
     }

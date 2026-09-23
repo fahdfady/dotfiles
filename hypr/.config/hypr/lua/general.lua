@@ -92,6 +92,7 @@ hl.config({
     binds = {
         scroll_event_delay               = 0,
         hide_special_on_workspace_change = true,
+        pass_mouse_when_bound            = true,
     },
 
     cursor = {
