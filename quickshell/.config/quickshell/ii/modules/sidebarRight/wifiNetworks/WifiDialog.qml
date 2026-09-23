@@ -36,13 +36,8 @@ WindowDialog {
         spacing: 0
 
         model: ScriptModel {
-            values: [...Network.wifiNetworks].sort((a, b) => {
-                if (a.active && !b.active)
-                    return -1;
-                if (!a.active && b.active)
-                    return 1;
-                return b.strength - a.strength;
-            })
+            // Omarchy order: connected first, then known, then strongest.
+            values: Network.sortedWifiNetworks
         }
         delegate: WifiNetworkItem {
             required property WifiAccessPoint modelData

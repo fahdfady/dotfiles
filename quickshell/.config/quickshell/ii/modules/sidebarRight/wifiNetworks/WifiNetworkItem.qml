@@ -13,7 +13,26 @@ DialogListItem {
 
     active: (wifiNetwork?.askingPassword || wifiNetwork?.active) ?? false
     onClicked: {
+        if (!wifiNetwork)
+            return;
+        // Clicking the connected row disconnects; a stale row must never hit
+        // an unrelated network, so rows without a live object do nothing.
+        if (wifiNetwork.active) {
+            Network.disconnectWifiNetwork();
+            return;
+        }
+        if (!Network.isOpenSecurity(wifiNetwork.security) && !Network.isKnownSsid(wifiNetwork.ssid)) {
+            wifiNetwork.askingPassword = true;
+            return;
+        }
         Network.connectToWifiNetwork(wifiNetwork);
+    }
+
+    function submitCredentials() {
+        if (!root.wifiNetwork)
+            return;
+        const enterprise = Network.isEnterpriseSecurity(root.wifiNetwork.security ?? "");
+        Network.connectToWifiNetwork(root.wifiNetwork, passwordField.text, enterprise ? identityField.text : "");
     }
 
     contentItem: ColumnLayout {
@@ -49,10 +68,60 @@ DialogListItem {
             }
         }
 
+        StyledText { // Action status: Connecting… / Connected / failure
+            visible: text.length > 0
+            Layout.fillWidth: true
+            color: Appearance.colors.colOnSurfaceVariant
+            elide: Text.ElideRight
+            text: {
+                if (!root.wifiNetwork)
+                    return "";
+                if (Network.wifiFailureSsid === root.wifiNetwork.ssid && Network.wifiFailureReason.length > 0)
+                    return Network.wifiFailureReason;
+                if (Network.wifiActionSsid === root.wifiNetwork.ssid && Network.wifiActionKind.length > 0) {
+                    if (Network.wifiActionKind === "disconnect")
+                        return Translation.tr("Disconnecting…");
+                    if (Network.wifiActionKind === "forget")
+                        return Translation.tr("Forgetting…");
+                    return Translation.tr("Connecting…");
+                }
+                if (root.wifiNetwork.active)
+                    return Translation.tr("Connected");
+                return "";
+            }
+        }
+
+        RowLayout { // Forget a saved (but not connected) network
+            visible: (root.wifiNetwork && !root.wifiNetwork.active && Network.isKnownSsid(root.wifiNetwork.ssid)) ?? false
+            Layout.fillWidth: true
+
+            DialogButton {
+                buttonText: Translation.tr("Forget")
+                onClicked: {
+                    Network.forgetWifiNetwork(root.wifiNetwork.ssid);
+                }
+            }
+
+            Item {
+                Layout.fillWidth: true
+            }
+        }
+
         ColumnLayout { // Password
             id: passwordPrompt
             Layout.topMargin: 8
             visible: root.wifiNetwork?.askingPassword ?? false
+
+            MaterialTextField {
+                id: identityField
+                visible: Network.isEnterpriseSecurity(root.wifiNetwork?.security ?? "")
+                Layout.fillWidth: true
+                placeholderText: Translation.tr("Identity (user@domain)")
+
+                onAccepted: {
+                    passwordField.forceActiveFocus();
+                }
+            }
 
             MaterialTextField {
                 id: passwordField
@@ -64,7 +133,7 @@ DialogListItem {
                 inputMethodHints: Qt.ImhSensitiveData
 
                 onAccepted: {
-                    Network.changePassword(root.wifiNetwork, passwordField.text);
+                    root.submitCredentials();
                 }
             }
 
@@ -85,7 +154,7 @@ DialogListItem {
                 DialogButton {
                     buttonText: Translation.tr("Connect")
                     onClicked: {
-                        Network.changePassword(root.wifiNetwork, passwordField.text);
+                        root.submitCredentials();
                     }
                 }
             }

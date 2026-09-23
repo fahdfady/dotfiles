@@ -27,6 +27,29 @@ Singleton {
     readonly property WifiAccessPoint active: wifiNetworks.find(n => n.active) ?? null
     property string wifiStatus: "disconnected"
 
+    // Saved NetworkManager profile names. Refreshed with the network list so
+    // sort order and forget affordances stay correct.
+    property var knownSsids: []
+    function isKnownSsid(ssid) {
+        return knownSsids.indexOf(ssid) !== -1;
+    }
+    function isEnterpriseSecurity(security) {
+        const s = security || "";
+        return s.indexOf("802.1X") !== -1 || s.indexOf("EAP") !== -1;
+    }
+    function isOpenSecurity(security) {
+        return !security || security === "--";
+    }
+    // Omarchy parity: connected first, then known, then strongest signal.
+    readonly property var sortedWifiNetworks: [...wifiNetworks].sort((a, b) => {
+        if (!!a.active !== !!b.active)
+            return a.active ? -1 : 1;
+        const ka = isKnownSsid(a.ssid), kb = isKnownSsid(b.ssid);
+        if (ka !== kb)
+            return ka ? -1 : 1;
+        return b.strength - a.strength;
+    })
+
     property string networkName: ""
     property int networkStrength
     property string materialSymbol: root.ethernet
@@ -63,16 +86,80 @@ Singleton {
         rescanProcess.running = true;
     }
 
-    function connectToWifiNetwork(accessPoint: WifiAccessPoint): void {
+    function connectToWifiNetwork(accessPoint: WifiAccessPoint, password = "", identity = ""): void {
+        password = password || "";
+        identity = identity || "";
         accessPoint.askingPassword = false;
         root.wifiConnectTarget = accessPoint;
-        // We use this instead of `nmcli connection up SSID` because this also creates a connection profile
-        connectProc.exec(["nmcli", "dev", "wifi", "connect", accessPoint.ssid])
-
+        root._connectStderr = "";
+        // We use `dev wifi connect` instead of `connection up SSID` because
+        // this also creates a connection profile. Argv passing keeps SSIDs
+        // with spaces intact.
+        if (identity.length > 0) {
+            root._startWifiAction("enterprise", accessPoint.ssid);
+            enterpriseConnect.secret = password;
+            enterpriseConnect.exec(["bash", "-c", NetModel.enterpriseConnectScript, "nmcli-eap", accessPoint.ssid, identity]);
+        } else if (password.length > 0) {
+            root._startWifiAction("connect", accessPoint.ssid);
+            connectProc.exec(["nmcli", "dev", "wifi", "connect", accessPoint.ssid, "password", password]);
+        } else {
+            root._startWifiAction("connect", accessPoint.ssid);
+            connectProc.exec(["nmcli", "dev", "wifi", "connect", accessPoint.ssid]);
+        }
     }
 
     function disconnectWifiNetwork(): void {
-        if (active) disconnectProc.exec(["nmcli", "connection", "down", active.ssid]);
+        if (active) {
+            root._startWifiAction("disconnect", active.ssid);
+            disconnectProc.exec(["nmcli", "connection", "down", active.ssid]);
+        }
+    }
+
+    function forgetWifiNetwork(ssid): void {
+        if (!ssid || forgetProc.running)
+            return;
+        root._startWifiAction("forget", ssid);
+        forgetProc.exec(["nmcli", "connection", "delete", ssid]);
+    }
+
+    function refreshWifiLists() {
+        getNetworks.running = true;
+        knownSsidsProc.running = true;
+    }
+
+    // ---- In-flight wifi action state (Omarchy parity) ----
+    // wifiActionSsid flips on for the row whose action is running so it can
+    // render "Connecting…" / "Disconnecting…" / "Forgetting…".
+    // wifiActionTimeout is the backstop: if onExited never fires, the row
+    // must not get stuck busy forever.
+    property string wifiActionSsid: ""
+    property string wifiActionKind: "" // connect | disconnect | forget | enterprise
+    property string wifiFailureSsid: ""
+    property string wifiFailureReason: ""
+    property string _connectStderr: ""
+    property string _enterpriseStderr: ""
+
+    function _startWifiAction(kind, ssid) {
+        wifiActionSsid = ssid || "";
+        wifiActionKind = kind;
+        wifiFailureSsid = "";
+        wifiFailureReason = "";
+        wifiActionTimeout.restart();
+    }
+
+    function _clearWifiAction() {
+        wifiActionTimeout.stop();
+        wifiActionSsid = "";
+        wifiActionKind = "";
+    }
+
+    function _failWifiAction(ssid, reason) {
+        wifiActionTimeout.stop();
+        wifiFailureSsid = ssid || "";
+        wifiFailureReason = reason || "Connection failed";
+        wifiActionSsid = "";
+        wifiActionKind = "";
+        refreshWifiLists();
     }
 
     function openPublicWifiPortal() {
@@ -111,15 +198,11 @@ command -v nmtui >/dev/null 2>&1 && command -v kitty >/dev/null 2>&1 && exec kit
         })
     }
 
+    // Compat wrapper: the old modify-in-place flow never re-applied the
+    // profile correctly. Reconnecting with the password covers both the
+    // first connect and the wrong-saved-password retry.
     function changePassword(network: WifiAccessPoint, password: string, username = ""): void {
-        // TODO: enterprise wifi with username
-        network.askingPassword = false;
-        changePasswordProc.exec({
-            "environment": {
-                "PASSWORD": password
-            },
-            "command": ["bash", "-c", `nmcli connection modify ${network.ssid} wifi-sec.psk "$PASSWORD"`]
-        })
+        connectToWifiNetwork(network, password, username);
     }
 
     Process {
@@ -134,21 +217,39 @@ command -v nmtui >/dev/null 2>&1 && command -v kitty >/dev/null 2>&1 && exec kit
         })
         stdout: SplitParser {
             onRead: line => {
-                // print(line)
                 getNetworks.running = true
             }
         }
         stderr: SplitParser {
             onRead: line => {
-                // print("err:", line)
-                if (line.includes("Secrets were required")) {
-                    root.wifiConnectTarget.askingPassword = true
-                }
+                root._connectStderr += line + "\n";
             }
         }
         onExited: (exitCode, exitStatus) => {
-            root.wifiConnectTarget.askingPassword = (exitCode !== 0)
-            root.wifiConnectTarget = null
+            const target = root.wifiConnectTarget;
+            const err = root._connectStderr;
+            const needsSecrets = err.includes("Secrets were required")
+                || err.includes("802-11-wireless-security")
+                || err.includes("no secrets");
+            if (exitCode === 0) {
+                if (target)
+                    target.askingPassword = false;
+                root._clearWifiAction();
+            } else if (root.wifiActionKind === "connect" && needsSecrets) {
+                // Wrong or missing passphrase: reprompt inline instead of
+                // dropping back to the list with no explanation.
+                if (target)
+                    target.askingPassword = true;
+                wifiActionTimeout.stop();
+                root.wifiFailureSsid = target ? target.ssid : "";
+                root.wifiFailureReason = "Wrong password";
+                root.wifiActionSsid = "";
+                root.wifiActionKind = "";
+            } else {
+                root._failWifiAction(target ? target.ssid : "", "Connection failed");
+            }
+            root.wifiConnectTarget = null;
+            root.refreshWifiLists();
         }
     }
 
@@ -157,13 +258,76 @@ command -v nmtui >/dev/null 2>&1 && command -v kitty >/dev/null 2>&1 && exec kit
         stdout: SplitParser {
             onRead: getNetworks.running = true
         }
+        onExited: (exitCode, exitStatus) => {
+            if (root.wifiActionKind === "disconnect")
+                root._clearWifiAction();
+            root.refreshWifiLists();
+        }
     }
 
     Process {
-        id: changePasswordProc
-        onExited: { // Re-attempt connection after changing password
-            connectProc.running = false
-            connectProc.running = true
+        id: forgetProc
+        stdout: SplitParser {}
+        stderr: SplitParser {}
+        onExited: (exitCode, exitStatus) => {
+            if (exitCode === 0) {
+                if (root.wifiActionKind === "forget")
+                    root._clearWifiAction();
+            } else {
+                root._failWifiAction(root.wifiActionSsid, "Could not forget network");
+            }
+            root.refreshWifiLists();
+        }
+    }
+
+    // Creates and activates the 802.1X profile (see
+    // NetModel.enterpriseConnectScript). The password travels over stdin,
+    // never argv (argv is world-readable in /proc).
+    Process {
+        id: enterpriseConnect
+        property string secret: ""
+        stdinEnabled: true
+        onStarted: {
+            write(secret + "\n");
+            secret = "";
+        }
+        stdout: SplitParser {}
+        stderr: SplitParser {
+            onRead: line => {
+                root._enterpriseStderr += line + "\n";
+            }
+        }
+        onExited: (exitCode, exitStatus) => {
+            const target = root.wifiConnectTarget;
+            if (exitCode === 0) {
+                if (target)
+                    target.askingPassword = false;
+                root._clearWifiAction();
+            } else {
+                if (target)
+                    target.askingPassword = true;
+                root._failWifiAction(target ? target.ssid : "", "Connection failed");
+            }
+            root.wifiConnectTarget = null;
+            root.refreshWifiLists();
+        }
+    }
+
+    Timer {
+        id: wifiActionTimeout
+        // Must outlast NetworkManager's ~25s supplicant timeout: a wrong
+        // saved PSK fails late, and that failure has to land while the
+        // action is still tracked to show "Wrong password".
+        interval: 30000
+        repeat: false
+        onTriggered: {
+            if (!root.wifiActionKind)
+                return;
+            root.wifiFailureSsid = root.wifiActionSsid;
+            root.wifiFailureReason = "Timed out";
+            root.wifiActionSsid = "";
+            root.wifiActionKind = "";
+            root.refreshWifiLists();
         }
     }
 
@@ -181,6 +345,7 @@ command -v nmtui >/dev/null 2>&1 && command -v kitty >/dev/null 2>&1 && exec kit
     // Status update
     function update() {
         updateConnectionType.startCheck();
+        knownSsidsProc.running = true;
         wifiStatusProcess.running = true
         updateNetworkName.running = true;
         updateNetworkStrength.running = true;
@@ -278,6 +443,21 @@ command -v nmtui >/dev/null 2>&1 && command -v kitty >/dev/null 2>&1 && exec kit
         stdout: StdioCollector {
             onStreamFinished: {
                 root.wifiEnabled = text.trim() === "enabled";
+            }
+        }
+    }
+
+    Process {
+        id: knownSsidsProc
+        running: true
+        command: ["nmcli", "-g", "NAME", "connection", "show"]
+        environment: ({
+            LANG: "C",
+            LC_ALL: "C"
+        })
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.knownSsids = text.trim().split("\n").filter(n => n.length > 0);
             }
         }
     }
