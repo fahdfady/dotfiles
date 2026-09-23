@@ -185,6 +185,10 @@ WindowDialog {
         }
     }
 
+    WifiBandSelector {}
+
+    DnsSelector {}
+
     WindowDialogSeparator {
         visible: !Network.wifiScanning
     }

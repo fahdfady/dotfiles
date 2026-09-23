@@ -552,6 +552,7 @@ command -v nmtui >/dev/null 2>&1 && command -v kitty >/dev/null 2>&1 && exec kit
 
     property string dnsProvider: ""
     property string _pendingDnsProvider: ""
+    readonly property bool dnsBusy: _pendingDnsProvider !== ""
     property string bandCurrent: ""
     property string bandSelected: "auto"
     property var bandAvailable: []
