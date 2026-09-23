@@ -157,7 +157,15 @@ Item {
         }
     }
 
-    onShowWifiDialogChanged: if (showWifiDialog) wifiDialogLoader.active = true;
+    onShowWifiDialogChanged: {
+        // Gated polling for link details, band and DNS (slices 2/5) only
+        // runs while the dialog is open; rescan on open like omarchy.
+        Network.detailsActive = showWifiDialog;
+        if (showWifiDialog) {
+            Network.rescanWifi();
+            wifiDialogLoader.active = true;
+        }
+    }
     Loader {
         id: wifiDialogLoader
         anchors.fill: parent

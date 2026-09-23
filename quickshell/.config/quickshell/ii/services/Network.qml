@@ -407,6 +407,7 @@ command -v nmtui >/dev/null 2>&1 && command -v kitty >/dev/null 2>&1 && exec kit
             root.wifiStatus = wifiStatus;
             root.ethernet = hasEthernet;
             root.wifi = hasWifi;
+            root.wifiDevicePresent = lines.some(line => line.includes("wifi:"));
         }
     }
 
@@ -569,7 +570,8 @@ command -v nmtui >/dev/null 2>&1 && command -v kitty >/dev/null 2>&1 && exec kit
     // The hero switch is the Wi-Fi radio, so it only exists when there is a
     // radio to switch. On a wired box it would otherwise sit there reading
     // "off" beside a perfectly live ethernet connection.
-    readonly property bool canToggleWifi: wifiEnabled || (wifiStatus !== "disabled")
+    property bool wifiDevicePresent: true
+    readonly property bool canToggleWifi: wifiDevicePresent
 
     function headerDetail() {
         return NetModel.headerDetail({ type: linkInfo.type || "", speed: linkInfo.speed || "" });
