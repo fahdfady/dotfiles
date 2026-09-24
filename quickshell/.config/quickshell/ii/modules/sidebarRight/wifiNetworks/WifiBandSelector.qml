@@ -24,8 +24,10 @@ ColumnLayout {
         spacing: 6
         enabled: !Network.bandBusy
 
-        GroupButton {
+        SelectionGroupButton {
             Layout.fillWidth: true
+            leftmost: true
+            rightmost: Network.bandAvailable.length === 0
             toggled: !Network.bandPinned
             buttonText: Translation.tr("Automatic")
             onClicked: Network.setBand("auto")
@@ -33,9 +35,12 @@ ColumnLayout {
 
         Repeater {
             model: Network.bandAvailable
-            delegate: GroupButton {
+            delegate: SelectionGroupButton {
                 required property string modelData
+                required property int index
                 Layout.fillWidth: true
+                leftmost: false
+                rightmost: index === Network.bandAvailable.length - 1
                 toggled: Network.bandEffective === modelData
                 buttonText: modelData + "GHz"
                 onClicked: Network.setBand(modelData)

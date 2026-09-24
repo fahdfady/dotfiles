@@ -26,9 +26,12 @@ ColumnLayout {
 
         Repeater {
             model: ["DHCP", "Cloudflare", "Google", "Custom"]
-            delegate: GroupButton {
+            delegate: SelectionGroupButton {
                 required property string modelData
+                required property int index
                 Layout.fillWidth: true
+                leftmost: index === 0
+                rightmost: index === 3
                 toggled: Network.dnsProvider === modelData
                 buttonText: Translation.tr(modelData)
                 onClicked: Network.setDnsProvider(modelData)

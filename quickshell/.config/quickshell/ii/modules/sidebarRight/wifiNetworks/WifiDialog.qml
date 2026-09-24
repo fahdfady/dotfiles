@@ -11,6 +11,10 @@ import Quickshell
 WindowDialog {
     id: root
 
+    // The dialog carries hero + stats + band + DNS above a scrolling list, so
+    // it needs more room than the shared 600 default.
+    backgroundHeight: 820
+
     WindowDialogTitle {
         text: Translation.tr("Wi-Fi")
     }
