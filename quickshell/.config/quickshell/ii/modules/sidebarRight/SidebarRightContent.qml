@@ -126,11 +126,7 @@ Item {
                 color: Appearance.colors.colLayer1
 
                 NetworkToggle {
-                    altAction: () => {
-                        Network.enableWifi();
-                        Network.rescanWifi();
-                        root.showWifiDialog = true;
-                    }
+                    openConfiguration: true
                 }
                 BluetoothToggle {
                     altAction: () => {
