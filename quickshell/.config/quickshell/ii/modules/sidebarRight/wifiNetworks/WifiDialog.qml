@@ -43,15 +43,13 @@ WindowDialog {
                 font.bold: true
                 text: {
                     const kind = Network.linkInfo.type || "";
-                    let name = Translation.tr("Disconnected");
                     if (kind === "ethernet" || (kind === "" && Network.ethernet))
-                        name = "Ethernet";
-                    else if (kind === "wifi")
-                        name = Network.linkInfo.ssid || Network.networkName || "Wi-Fi";
-                    else if (Network.networkName.length > 0)
-                        name = Network.networkName;
-                    const detail = Network.headerDetail();
-                    return detail !== "" ? name + " (" + detail + ")" : name;
+                        return "Ethernet";
+                    if (kind === "wifi")
+                        return Network.linkInfo.ssid || Network.networkName || "Wi-Fi";
+                    if (Network.networkName.length > 0)
+                        return Network.networkName;
+                    return Translation.tr("Disconnected");
                 }
             }
 
@@ -61,15 +59,19 @@ WindowDialog {
                 elide: Text.ElideRight
                 opacity: 0.7
                 text: {
+                    let state;
                     if (Network.ethernet || (Network.linkInfo.type || "") === "ethernet")
-                        return Translation.tr("Connected");
-                    if (!Network.wifiEnabled)
+                        state = Translation.tr("Connected");
+                    else if (!Network.wifiEnabled)
                         return Translation.tr("Wi-Fi off");
-                    if (Network.wifiStatus === "connecting" || Network.wifiConnecting)
+                    else if (Network.wifiStatus === "connecting" || Network.wifiConnecting)
                         return Translation.tr("Connecting…");
-                    if (Network.active)
-                        return Translation.tr("Connected");
-                    return Translation.tr("Not connected");
+                    else if (Network.active)
+                        state = Translation.tr("Connected");
+                    else
+                        return Translation.tr("Not connected");
+                    const speed = Network.linkSpeedText();
+                    return speed !== "" ? state + " · " + speed : state;
                 }
             }
         }
@@ -168,6 +170,7 @@ WindowDialog {
         // without depending on wl-copy being installed.
         TextEdit {
             Layout.fillWidth: true
+            Layout.columnSpan: 3
             readOnly: true
             selectByMouse: true
             color: Appearance.colors.colOnSurfaceVariant
@@ -181,6 +184,7 @@ WindowDialog {
         }
         TextEdit {
             Layout.fillWidth: true
+            Layout.columnSpan: 3
             readOnly: true
             selectByMouse: true
             color: Appearance.colors.colOnSurfaceVariant

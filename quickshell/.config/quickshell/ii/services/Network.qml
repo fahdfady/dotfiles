@@ -578,6 +578,22 @@ command -v nmtui >/dev/null 2>&1 && command -v kitty >/dev/null 2>&1 && exec kit
         return NetModel.headerDetail({ type: linkInfo.type || "", speed: linkInfo.speed || "" });
     }
 
+    // Negotiated link speed for the hero: Wi-Fi reports its tx bitrate, wired
+    // reports the NIC's link speed. Normalized to a shared "Mbit/s" scale.
+    function linkSpeedText() {
+        const kind = linkInfo.type || "";
+        if (kind === "wifi") {
+            const bitrate = parseFloat(linkInfo.bitrate || "");
+            return isNaN(bitrate) ? "" : Math.round(bitrate) + " Mbit/s";
+        }
+        if (kind === "ethernet") {
+            const speed = parseInt(linkInfo.speed || "", 10);
+            if (!speed || speed < 0) return "";
+            return speed >= 1000 ? (speed / 1000) + " Gbit/s" : speed + " Mbit/s";
+        }
+        return "";
+    }
+
     function formatRate(bytesPerSec) {
         return NetModel.formatRate(bytesPerSec);
     }
