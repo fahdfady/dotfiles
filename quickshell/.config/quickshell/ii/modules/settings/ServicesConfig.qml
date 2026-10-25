@@ -57,6 +57,128 @@ ContentPage {
     }
 
     ContentSection {
+        icon: "mosque"
+        title: Translation.tr("Prayer times")
+
+        MaterialTextField {
+            Layout.fillWidth: true
+            placeholderText: Translation.tr("Location name")
+            text: Config.options.sidebar.prayer.locationName
+            onTextChanged: {
+                Config.options.sidebar.prayer.locationName = text;
+                PrayerTimes.refreshPrayers();
+            }
+        }
+
+        ConfigSwitch {
+            buttonIcon: "my_location"
+            text: Translation.tr("Use manual coordinates")
+            checked: Config.options.sidebar.prayer.useManualCoordinates
+            onCheckedChanged: {
+                Config.options.sidebar.prayer.useManualCoordinates = checked;
+                PrayerTimes.refreshPrayers();
+            }
+        }
+
+        ConfigSwitch {
+            buttonIcon: "location_searching"
+            text: Translation.tr("Use weather location")
+            checked: Config.options.sidebar.prayer.useWeatherLocation
+            onCheckedChanged: {
+                Config.options.sidebar.prayer.useWeatherLocation = checked;
+                PrayerTimes.refreshPrayers();
+            }
+            StyledToolTip {
+                text: Translation.tr("Requires a valid location from the weather service")
+            }
+        }
+
+        ContentSubsection {
+            title: Translation.tr("Coordinates")
+
+            ConfigRow {
+                uniform: true
+                MaterialTextField {
+                    Layout.fillWidth: true
+                    placeholderText: Translation.tr("Latitude (-90 to 90)")
+                    text: Number(Config.options.sidebar.prayer.latitude).toFixed(4)
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onEditingFinished: {
+                        const parsed = parseFloat(text);
+                        if (!isNaN(parsed) && parsed >= -90 && parsed <= 90) {
+                            Config.options.sidebar.prayer.latitude = parsed;
+                            PrayerTimes.refreshPrayers();
+                        }
+                        text = Number(Config.options.sidebar.prayer.latitude).toFixed(4);
+                    }
+                }
+                MaterialTextField {
+                    Layout.fillWidth: true
+                    placeholderText: Translation.tr("Longitude (-180 to 180)")
+                    text: Number(Config.options.sidebar.prayer.longitude).toFixed(4)
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onEditingFinished: {
+                        const parsed = parseFloat(text);
+                        if (!isNaN(parsed) && parsed >= -180 && parsed <= 180) {
+                            Config.options.sidebar.prayer.longitude = parsed;
+                            PrayerTimes.refreshPrayers();
+                        }
+                        text = Number(Config.options.sidebar.prayer.longitude).toFixed(4);
+                    }
+                }
+            }
+        }
+
+        ContentSubsection {
+            title: Translation.tr("Calculation")
+
+            ConfigRow {
+                uniform: true
+                ConfigSpinBox {
+                    icon: "brightness_5"
+                    text: Translation.tr("Fajr angle")
+                    value: Config.options.sidebar.prayer.fajrAngle
+                    from: 0
+                    to: 30
+                    stepSize: 1
+                    onValueChanged: {
+                        Config.options.sidebar.prayer.fajrAngle = value;
+                        PrayerTimes.refreshPrayers();
+                    }
+                }
+                ConfigSpinBox {
+                    icon: "brightness_2"
+                    text: Translation.tr("Isha angle")
+                    value: Config.options.sidebar.prayer.ishaAngle
+                    from: 0
+                    to: 30
+                    stepSize: 1
+                    onValueChanged: {
+                        Config.options.sidebar.prayer.ishaAngle = value;
+                        PrayerTimes.refreshPrayers();
+                    }
+                }
+            }
+
+            ConfigSpinBox {
+                icon: "shadow"
+                text: Translation.tr("Asr school (shadow factor)")
+                value: Config.options.sidebar.prayer.asrFactor
+                from: 1
+                to: 2
+                stepSize: 1
+                onValueChanged: {
+                    Config.options.sidebar.prayer.asrFactor = value;
+                    PrayerTimes.refreshPrayers();
+                }
+                StyledToolTip {
+                    text: Translation.tr("1 for standard (Shafi'i, Maliki, Hanbali), 2 for Hanafi")
+                }
+            }
+        }
+    }
+
+    ContentSection {
         icon: "search"
         title: Translation.tr("Search")
 
