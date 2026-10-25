@@ -198,7 +198,7 @@ Singleton {
 
     function asrTime(factor, timeFraction, latRad, julianDay) {
         const decl = sunPosition(julianDay + timeFraction).decl;
-        const angle = -Math.atan(1 / (factor + Math.tan(Math.abs(latRad - decl))));
+        const angle = Math.atan(1 / (factor + Math.tan(Math.abs(latRad - decl))));
         return sunAngleTime(rad2deg(angle), timeFraction, 1, latRad, julianDay);
     }
 

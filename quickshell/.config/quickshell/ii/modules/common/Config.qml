@@ -398,8 +398,8 @@ Singleton {
                     property real latitude: 0
                     property real longitude: 0
                     property string locationName: ""
-                    property int fajrAngle: 18
-                    property int ishaAngle: 17
+                    property real fajrAngle: 18
+                    property real ishaAngle: 17
                     property real asrFactor: 1
                 }
             }

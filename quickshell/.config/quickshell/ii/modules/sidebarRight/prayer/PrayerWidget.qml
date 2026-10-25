@@ -53,9 +53,9 @@ Item {
                     Layout.fillWidth: true
                     height: 30
                     radius: Appearance.rounding.small
-                    border.color: modelData.isNext ? Appearance.colors.colPrimary : Appearance.colors.colOutlineVariant
-                    border.width: 1
-                    color: modelData.isNext ? ColorUtils.transparentize(Appearance.colors.colPrimary, 0.75) : "transparent"
+                    border.color: modelData.isNext ? Appearance.colors.colPrimary : Appearance.colors.colOutline
+                    border.width: modelData.isNext ? 2 : 1
+                    color: modelData.isNext ? Appearance.colors.colPrimaryContainer : "transparent"
                     RowLayout {
                         anchors.fill: parent
                         anchors.margins: 6
@@ -63,13 +63,15 @@ Item {
                         StyledText {
                             text: modelData.name
                             font.pixelSize: Appearance.font.pixelSize.normal
-                            color: modelData.isNext ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer1
+                            font.weight: modelData.isNext ? Font.Medium : Font.Normal
+                            color: modelData.isNext ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colOnLayer2
                         }
                         Item { Layout.fillWidth: true }
                         StyledText {
                             text: modelData.time
                             font.pixelSize: Appearance.font.pixelSize.normal
-                            color: modelData.isNext ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer1
+                            font.weight: modelData.isNext ? Font.Medium : Font.Normal
+                            color: modelData.isNext ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colOnLayer2
                         }
                     }
                 }
