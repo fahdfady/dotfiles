@@ -59,18 +59,6 @@ ContentPage {
             visible: Config.options.background.clock.style === "cookie"
             title: Translation.tr("Cookie clock settings")
 
-            ConfigSwitch {
-                buttonIcon: "wand_stars"
-                text: Translation.tr("Auto styling with Gemini")
-                checked: Config.options.background.clock.cookie.aiStyling
-                onCheckedChanged: {
-                    Config.options.background.clock.cookie.aiStyling = checked;
-                }
-                StyledToolTip {
-                    text: Translation.tr("Uses Gemini to categorize the wallpaper then picks a preset based on it.\nYou'll need to set Gemini API key on the left sidebar first.\nImages are downscaled for performance, but just to be safe,\ndo not select wallpapers with sensitive information.")
-                }
-            }
-
             ConfigSpinBox {
                 icon: "add_triangle"
                 text: Translation.tr("Sides")
@@ -505,7 +493,7 @@ ContentPage {
                     Config.options.lock.security.unlockKeyring = checked;
                 }
                 StyledToolTip {
-                    text: Translation.tr("This is usually safe and needed for your browser and AI sidebar anyway\nMostly useful for those who use lock on startup instead of a display manager that does it (GDM, SDDM, etc.)")
+                    text: Translation.tr("This is usually safe and needed for your browser anyway\nMostly useful for those who use lock on startup instead of a display manager that does it (GDM, SDDM, etc.)")
                 }
             }
         }

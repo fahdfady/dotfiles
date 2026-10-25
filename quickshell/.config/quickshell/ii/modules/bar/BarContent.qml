@@ -84,7 +84,7 @@ Item { // Bar content region
 
             LeftSidebarButton { // Left sidebar button
                 id: leftSidebarButton
-                visible: Config.options.policies.ai !== 0 || Config.options.sidebar.translator.enable || Config.options.policies.weeb !== 0
+                visible: Config.options.sidebar.translator.enable || Config.options.policies.weeb !== 0
                 Layout.alignment: Qt.AlignVCenter
                 Layout.leftMargin: Appearance.rounding.screenRounding
                 colBackground: barLeftSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
