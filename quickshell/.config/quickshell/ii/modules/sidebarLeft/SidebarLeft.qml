@@ -12,7 +12,7 @@ Scope { // Scope
     id: root
     property int sidebarPadding: 15
     property bool detach: false
-    property bool hasContent: Config.options.policies.ai !== 0 || Config.options.sidebar.translator.enable || Config.options.policies.weeb !== 0
+    property bool hasContent: Config.options.sidebar.translator.enable || Config.options.policies.weeb !== 0
     property Component contentComponent: SidebarLeftContent {}
     property Item sidebarContent
 

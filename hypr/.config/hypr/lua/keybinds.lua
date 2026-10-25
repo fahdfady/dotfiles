@@ -78,7 +78,6 @@ hl.define_submap("global", function()
     hl.bind("SUPER + ALT + R", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/record.sh"), { description = "Record region (no sound)" })
     hl.bind("CTRL + ALT + R", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/record.sh --fullscreen"), { description = "Record screen (no sound)" }) -- hidden
     hl.bind("SUPER + SHIFT + ALT + R", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/record.sh --fullscreen-sound"), { description = "Record screen (with sound)" })
-    hl.bind("SUPER + SHIFT + ALT + mouse:273", hl.dsp.exec_cmd("~/.config/hypr/hyprland/scripts/ai/primary-buffer-query.sh"), { mouse = true, description = "Generate AI summary for selected text" })
 
     ---------------------------------
 -- #!
