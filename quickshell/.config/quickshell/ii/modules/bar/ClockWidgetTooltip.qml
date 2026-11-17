@@ -79,6 +79,33 @@ StyledPopup {
             }
         }
 
+        // Next prayer row
+        RowLayout {
+            visible: PrayerTimes.nextPrayerName.length > 0
+            spacing: 5
+            Layout.fillWidth: true
+            MaterialSymbol {
+                text: "mosque"
+                color: Appearance.colors.colOnSurfaceVariant
+                font.pixelSize: Appearance.font.pixelSize.large
+            }
+            StyledText {
+                text: Translation.tr("Next prayer:")
+                color: Appearance.colors.colOnSurfaceVariant
+            }
+            StyledText {
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignRight
+                color: Appearance.colors.colOnSurfaceVariant
+                text: `${PrayerTimes.nextPrayerName} ${PrayerTimes.nextPrayerTime} ·`
+            }
+            StyledText {
+                color: Appearance.colors.colOnSurfaceVariant
+                font.weight: Font.Medium
+                text: PrayerTimes.nextPrayerRemainingText
+            }
+        }
+
         // Tasks
         Column {
             spacing: 0

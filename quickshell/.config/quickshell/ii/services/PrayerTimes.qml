@@ -12,6 +12,7 @@ Singleton {
     property var prayers: []
     property string nextPrayerName: ""
     property string nextPrayerTime: ""
+    property string nextPrayerRemainingText: ""
     property string locationLabel: Translation.tr("Location not set")
     property bool hasValidLocation: false
 
@@ -22,6 +23,14 @@ Singleton {
         repeat: true
         triggeredOnStart: true
         onTriggered: root.refreshPrayers()
+    }
+
+    Timer {
+        id: countdownTimer
+        interval: 1000
+        running: root.hasValidLocation
+        repeat: true
+        onTriggered: root.updateCountdown()
     }
 
     function refreshPrayers() {
@@ -35,6 +44,7 @@ Singleton {
             prayers = [];
             nextPrayerName = "";
             nextPrayerTime = "";
+            nextPrayerRemainingText = "";
             return;
         }
 
@@ -45,9 +55,45 @@ Singleton {
         const prayerList = buildPrayerList(rawTimes, now);
 
         prayers = prayerList;
-        const highlighted = prayerList.find(item => item.isNext);
-        nextPrayerName = highlighted ? highlighted.name : "";
-        nextPrayerTime = highlighted ? highlighted.time : "";
+        updateCountdown();
+    }
+
+    function updateCountdown() {
+        if (!hasValidLocation || prayers.length === 0) {
+            nextPrayerName = "";
+            nextPrayerTime = "";
+            nextPrayerRemainingText = "";
+            return;
+        }
+
+        const validPrayers = prayers.filter(item => !isNaN(item.seconds));
+        if (validPrayers.length === 0) {
+            nextPrayerName = "";
+            nextPrayerTime = "";
+            nextPrayerRemainingText = "";
+            return;
+        }
+
+        const now = new Date();
+        const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+        const next = validPrayers.find(item => item.seconds > nowSeconds);
+        const target = next ? next : validPrayers[0];
+        const targetSeconds = next ? next.seconds : validPrayers[0].seconds + 86400;
+
+        nextPrayerName = target.name;
+        nextPrayerTime = target.time;
+        nextPrayerRemainingText = formatRemaining(targetSeconds - nowSeconds);
+    }
+
+    function formatRemaining(totalSeconds) {
+        const seconds = Math.max(0, Math.round(totalSeconds));
+        if (seconds < 60)
+            return `${seconds}s`;
+        if (seconds < 3600)
+            return `${Math.floor(seconds / 60)}m`;
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        return `${hours}:${padZero(minutes)}h`;
     }
 
     function getLocation() {
